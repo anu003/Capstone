@@ -4,7 +4,7 @@ from geopy.geocoders import Nominatim
 from collections import Counter
 from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
-import requests, os, json
+import requests, os, json, pickle
 import pandas as pd
 import numpy as np
 import threading, time
@@ -16,27 +16,39 @@ def extract_locations(df):
     labels = db.fit_predict(df[['latitude','longitude']])
     labels = np.expand_dims(labels, axis = 1)
     df['location'] = labels
-    # geocoder = Nominatim()
-    # states = {}
-    # centroids = {}
-    # exceptions = []
-    # for label in np.unique(labels):
-    #     X = df[df.state == label][['latitude','longitude']]
-    #     lat, lon = X.mean()
+    geocoder = Nominatim()
+    states = {}
+    centroids = {}
+    exceptions = []
+    for label in np.unique(labels):
+        X = df[df.location == label][['latitude','longitude']]
+        lat, lon = X.mean()
+        location = geocoder.reverse((lat,lon))
+        time.sleep(1)
+        try:    # Works for most countries
+            states[label] = location.raw['address']['state']
+            centroids[label] = (lat,lon)
+        except:
+            exceptions.append((lat,lon))
+            states[label] = (lat,lon)
+            centroids[label] = (lat,lon)
+    df['city_center'] = df['location'].map(centroids)
+    df['location'] = df['location'].map(states)
+    return exceptions
 
-    #     location = geocoder.reverse((lat,lon))
-    #     time.sleep(2)
-    #     try:    # Works for most countries
-    #         states[label] = location.raw['address']['state']
-    #         centroids[label] = (lat,lon)
-    #     except:
-    #         exceptions.append((lat,lon))
-    #         states[label] = (lat,lon)
-    #         centroids[label] = (lat,lon)
-    # df['city_state'] = df.state.map(centroids)
-    # df.state = df.state.map(states)
-    # return exceptions
+def get_business_ids(file_path, cuisine, location):
+    df_restaurants = pd.read_pickle(file_path)
+    df_cuisine = df_restaurants[df_restaurants['categories'].str.contains(cuisine)]
+    return df_cuisine[df_cuisine['location'] == cuisine]['business_id']
+
+def get_business_reviews(file_path, business_ids):
+    reviews = pd.read_pickle(file_path)
+    return reviews[reviews['business_id'].isin(business_ids)]
 
 if __name__=="__main__":
-    df_business = pd.read_csv("yelp_dataset_business.csv")
-    extract_locations(df_business)
+    # df_business = pd.read_csv("../data/yelp_dataset_business.csv")
+    # df_restaurants = df_business[(df_business['categories']).str.contains('Restaurants')]
+    # extract_locations(df_restaurants)
+    # df_restaurants.to_pickle("../data/restaurant_data.pkl")
+    business_ids = get_business_ids('../data/restaurant_data.pkl', 'Italian', 'Nevada')
+    df_reviews = get_business_reviews('../data/review_data.pkl', business_ids)
