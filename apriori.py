@@ -1,25 +1,25 @@
 #-*- coding:utf-8 - *-
 
-def createC1(file_path):
+def createC1(itemset):
     "Create a list of candidate item sets of size one."
 
-    c1 = []
-    with open(file_path, 'r') as f:
-        itemset = f.readlines()
-        for transaction in itemset:
-            for item in transaction.split(','):
-                if not [item] in c1:
-                    c1.append([item])
-    c1.sort()
-    return map(frozenset, c1)
     # c1 = []
-    # for transaction in itemset:
-    #     for item in transaction:
-    #         if not [item] in c1:
-    #             c1.append([item])
+    # with open(file_path, 'r') as f:
+    #     itemset = f.readlines()
+    #     for transaction in itemset:
+    #         for item in transaction.split(','):
+    #             if not [item] in c1:
+    #                 c1.append([item])
     # c1.sort()
-    # #frozenset because it will be a ket of a dictionary.
     # return map(frozenset, c1)
+    c1 = []
+    for transaction in itemset:
+        for item in transaction:
+            if not [item] in c1:
+                c1.append([item])
+    c1.sort()
+    #frozenset because it will be a ket of a dictionary.
+    return map(frozenset, c1)
 
 
 def scanD(dataset, candidates, min_support):
