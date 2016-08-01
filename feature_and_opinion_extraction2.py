@@ -5,7 +5,7 @@ import apriori
 import pandas as pd
 import numpy as np
 
-class NounAndNPExtractor(object):
+class FeatureAndOpinionExtractor(object):
 
     def __init__(self, df, lang):
         self.df = df
@@ -16,7 +16,6 @@ class NounAndNPExtractor(object):
         self.features = []
         self._preprocess()
 
-
     def _preprocess(self):
         self.df['sentences'] = self.df['text'].apply(self._tokenize_sent)
         self.df['noun_and_np'] = self.df['sentences'].apply(self._get_nouns_np)
@@ -25,7 +24,6 @@ class NounAndNPExtractor(object):
         self._redundancy_pruning()
         self._get_features()
         self._extract_opinions()
-
 
     def _tokenize_sent(self, review):
 
@@ -167,6 +165,6 @@ class NounAndNPExtractor(object):
         self.df['adverbs'] = self.df['sentences'].apply(lambda x: self._extract_pos(x, ADV))
         self.df['verbs'] = self.df['sentences'].apply(lambda x: self._extract_pos(x, VERB))
 
-if __name__ == "__main__":
-    reviews = pd.read_pickle("reviews_15.pkl")
-    nnp = NounAndNPExtractor(reviews, English)
+# if __name__ == "__main__":
+#     reviews = pd.read_pickle("reviews_15.pkl")
+#     nnp = FeatureAndOpinionExtractor(reviews, English)

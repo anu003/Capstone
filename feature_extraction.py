@@ -17,6 +17,7 @@ class FeatureExtraction(object):
     def __init__(self, df):
         self.df = df
         self._tokenize_sentences()
+        self.df['pos_tagged'] = self.df['text'].apply(lambda x: nltk.tag.pos_tag(x.split()))
         self.df['noun_and_np'] = self.df['sentences'].apply(self._preprocess)
         self.frequent_features = []
         self.feature_phrases = []
@@ -164,8 +165,6 @@ class FeatureExtraction(object):
                         phrase_list.append(phrase)
             if self._is_redundant(ftr, phrase_list):
                 self.feature_words.append(ftr)
-
-
 
     def _get_features(self):
         self.features = self.feature_words + self.feature_phrases

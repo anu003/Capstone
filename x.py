@@ -15,3 +15,20 @@ the user ui rated feature fj, count_r(ui) is the number of restaurants
 that user ui reviewed, Nr is the number of restaurants with customer
 reviews, and count_r(fj) is the number of restaurants with the feature
 fj being commented on
+
+kt5MZ368FrySa2S0PB1yqg  Vhc7JJd5S347VW1s2x0F6Q 7
+
+def combine_columns(row):
+    combo = []
+    scores = row['scores']
+    topics = row['topics']
+    for score, topic in izip(scores, topics):
+        combo.append((score, topic))
+    return combo
+
+combo = []
+for topic, score in izip(test_topics, test_scores):
+    combo.append((topic, score))
+
+
+s = data_new.apply(lambda x: pd.Series(x['topics_scores']),axis=1).stack().reset_index(level=1, drop=True)
